@@ -1,9 +1,15 @@
-# in case of  express backend we dont required to communicate 
-# database at image build time 
+# in case of nextjs at the build time we have to 
+# required to communicate to the database 
+# so definetly we have to give database access at the build time 
+# we can not pass database url in the docker file because sameone can read my 
+# production database 
+# so that we have to pass as a ARG at the build time 
 
 FROM oven/bun:1
 
 WORKDIR /usr/src/app
+
+ARG DATABASE_URL
 
 COPY ./package.json ./package.json 
 COPY ./bun.json ./bun.json 
@@ -14,8 +20,12 @@ COPY ./turbo.json ./turbo.json
 COPY ./apps/web ./apps/web
 
 RUN bun install
+# i have added script in package.json file 
+# script ko run krne ke liye always bun/npm run script_name
 RUN bun run db:migrate
+
+RUN DATABASE_URL=${DATABASE_URL} bun run build 
 
 EXPOSE 8081
 
-CMD [ "bun", "run", "start:ws" ]
+CMD [ "bun", "run", "start:web"]
