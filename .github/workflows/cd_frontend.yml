@@ -1,32 +1,29 @@
-name: Deployment frontend
+name: Deploy the backend
 on:
   push:
     branches: [ main ]
-jobs:
+jobs: 
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: copy repo
+      - name: Checkout the code
         uses: actions/checkout@v2
-      
+
       - name: Docker login
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       
-      - name: Build and push
+      - name: Build and push 
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./Docker/Dockerfile.frontend
-          build-args:
-           - DATABASE_URL=${{secrets.DATABASE_URL}}
+          file: ./docker/Dockerfile.backend
           push: true
-          tags: chiragshrimal/todo-app-frontend:${{ github.sha }}
-
-      - name: Deploy to VM
-      - run: |
+          tags: chiragshrimal/todo-app-backend:${{ github.sha }}
+      - name: Deploy to the VM
+        run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" &> ~/ssh_key
           chmod 700 /home/runner/ssh_key
-          ssh -o StrictHostKeyChecking=no -i ~/ssh_key ubuntu@15.206.75.30 -t "docker stop user_backend && docker run --name user_backend -d -p 8080:8080 chiragshrimal/todo-app-backend:${{ github.sha }}"  
+          ssh -o StrictHostKeyChecking=no -i ~/ssh_key ubuntu@15.206.75.30 -t "docker stop user_backend && docker run --name user_backend -d -p 8080:8080 chiragshrimal/todo-app-backend:${{ github.sha }}"
