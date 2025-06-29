@@ -1,4 +1,4 @@
-name: Continuous Deployment (Prod) (Backend)
+name: Deployment web-socket
 on:
   push:
     branches: [ main ]
