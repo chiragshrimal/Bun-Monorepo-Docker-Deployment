@@ -22,3 +22,8 @@ jobs:
           file: ./Docker/Dockerfile.ws
           push: true
           tags: chiragshrimal/todo-app-websocket:${{ github.sha }}
+      - name: Deploy to the VM
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" &> ~/ssh_key
+          chmod 700 /home/runner/ssh_key
+          ssh -o StrictHostKeyChecking=no -i ~/ssh_key ubuntu@15.206.75.30 -t "sudo docker stop user_ws || true && sudo docker rm user_ws || true && sudo docker run --name user_ws -d -p 8080:8080 chiragshrimal/todo-app-websocket:${{ github.sha }}"    
